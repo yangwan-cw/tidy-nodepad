@@ -78,10 +78,6 @@ const Notepad: React.FC<NotepadProps> = () => {
   return (
     <div className="notepad-container">
       <div className="notepad-header">
-        <div className="notepad-title">
-          <h1>Tidy Notepad</h1>
-          <span className="file-name">{fileName}{isModified ? ' *' : ''}</span>
-        </div>
         <div className="notepad-actions">
           <button onClick={handleNew} className="btn btn-secondary">
             New
@@ -92,6 +88,14 @@ const Notepad: React.FC<NotepadProps> = () => {
           <button onClick={handleSave} className="btn btn-primary">
             Save
           </button>
+        </div>
+        
+        <div className="notepad-title">
+          Tidy Notepad
+        </div>
+        
+        <div className="notepad-file-info">
+          <span className="file-name">{fileName}{isModified ? ' *' : ''}</span>
         </div>
       </div>
       

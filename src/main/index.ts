@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { join } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
   // Create the browser window.
@@ -11,7 +10,14 @@ function createWindow(): void {
     height: 700,
     show: false,
     autoHideMenuBar: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+    titleBarOverlay: process.platform !== 'darwin' ? {
+      color: '#f8f9fa',
+      symbolColor: '#495057',
+      height: 50
+    } : false,
+    title: '',
+    icon: undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
