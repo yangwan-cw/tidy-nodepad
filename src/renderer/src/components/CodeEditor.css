@@ -1,0 +1,130 @@
+.code-editor {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.code-editor-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.code-highlighter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.code-highlighter.editing {
+  opacity: 0.7;
+}
+
+.code-highlighter pre {
+  margin: 0 !important;
+  padding: 20px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  overflow: hidden !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: transparent;
+}
+
+.code-highlighter pre code {
+  background: transparent !important;
+  padding: 0 !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.code-textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 20px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c3e50;
+  background: transparent;
+  box-sizing: border-box;
+  z-index: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.code-textarea.with-highlight {
+  color: transparent;
+  caret-color: #2c3e50;
+}
+
+.code-textarea.with-highlight::selection {
+  background: rgba(0, 123, 255, 0.3);
+}
+
+.code-textarea.plain {
+  color: #2c3e50;
+  background: #ffffff;
+}
+
+.code-textarea::placeholder {
+  color: #adb5bd;
+  opacity: 1;
+}
+
+.code-textarea:focus {
+  outline: none;
+}
+
+/* 滚动条样式 */
+.code-textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-textarea::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.code-textarea::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.code-textarea::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.code-textarea::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* 确保语法高亮的滚动条不显示 */
+.code-highlighter::-webkit-scrollbar {
+  display: none;
+}
+
+.code-highlighter {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

@@ -23,7 +23,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
-    "electron-updater": "^6.3.9"
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "electron-updater": "^6.3.9",
+    "react-syntax-highlighter": "^15.6.6"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

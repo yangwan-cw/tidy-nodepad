@@ -5,6 +5,56 @@
   width: 100vw;
   background: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.notepad-container.dark-theme {
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.notepad-container.dark-theme .notepad-header {
+  background: #2d2d30;
+  border-bottom-color: #3e3e42;
+}
+
+.notepad-container.dark-theme .notepad-title {
+  color: #cccccc;
+}
+
+.notepad-container.dark-theme .file-name {
+  color: #969696;
+}
+
+.notepad-container.dark-theme .language-selector {
+  background: #3c3c3c;
+  border-color: #5a5a5a;
+  color: #cccccc;
+}
+
+.notepad-container.dark-theme .btn {
+  background: #3c3c3c;
+  border-color: #5a5a5a;
+  color: #cccccc;
+}
+
+.notepad-container.dark-theme .btn:hover {
+  background: #4a4a4a;
+}
+
+.notepad-container.dark-theme .btn-primary {
+  background: #0e639c;
+  border-color: #0e639c;
+}
+
+.notepad-container.dark-theme .btn-primary:hover {
+  background: #1177bb;
+}
+
+.notepad-container.dark-theme .notepad-status {
+  background: #2d2d30;
+  border-top-color: #3e3e42;
+  color: #969696;
 }
 
 .notepad-header {
@@ -57,6 +107,47 @@
   justify-self: end;
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.language-selector {
+  padding: 4px 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #495057;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  -webkit-app-region: no-drag;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.language-selector:hover {
+  border-color: #adb5bd;
+  background: #f8f9fa;
+}
+
+.language-selector:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.dark-theme .language-selector {
+  background: #3c3c3c;
+  border-color: #5a5a5a;
+  color: #cccccc;
+}
+
+.dark-theme .language-selector:hover {
+  background: #4a4a4a;
+  border-color: #6a6a6a;
+}
+
+.dark-theme .language-selector:focus {
+  border-color: #0e639c;
+  box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.25);
 }
 
 .file-name {

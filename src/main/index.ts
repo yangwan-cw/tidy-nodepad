@@ -72,6 +72,11 @@ function createWindow(): void {
           accelerator: 'CmdOrCtrl+B',
           click: () => mainWindow.webContents.send('menu-toggle-sidebar')
         },
+        {
+          label: 'Toggle Theme',
+          accelerator: 'CmdOrCtrl+Shift+T',
+          click: () => mainWindow.webContents.send('menu-toggle-theme')
+        },
         { type: 'separator' },
         { role: 'reload' },
         { role: 'forceReload' },

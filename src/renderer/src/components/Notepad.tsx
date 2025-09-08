@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './Sidebar'
+import CodeEditor from './CodeEditor'
+import { getLanguageInfo, supportedLanguages, LanguageInfo } from '../utils/languageDetector'
 import './Notepad.css'
 
 interface NotepadProps {}
@@ -10,10 +12,22 @@ const Notepad: React.FC<NotepadProps> = () => {
   const [filePath, setFilePath] = useState<string>('')
   const [isModified, setIsModified] = useState<boolean>(false)
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(true)
+  const [currentLanguage, setCurrentLanguage] = useState<LanguageInfo>(
+    supportedLanguages.find(lang => lang.language === 'text')!
+  )
+  const [editorTheme, setEditorTheme] = useState<'light' | 'dark'>('light')
 
-  const handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(event.target.value)
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent)
     setIsModified(true)
+    
+    // 自动检测语言（仅在内容变化时，不是文件打开时）
+    if (fileName === 'Untitled' && newContent.trim().length > 10) {
+      const detectedLanguage = getLanguageInfo(fileName, newContent)
+      if (detectedLanguage.language !== currentLanguage.language) {
+        setCurrentLanguage(detectedLanguage)
+      }
+    }
   }
 
   const handleSave = async () => {
@@ -36,10 +50,15 @@ const Notepad: React.FC<NotepadProps> = () => {
     try {
       const result = await window.api.openFile()
       if (result.success && result.content !== undefined) {
+        const newFileName = result.filePath?.split(/[\\/]/).pop() || 'Untitled'
         setContent(result.content)
         setFilePath(result.filePath || '')
-        setFileName(result.filePath?.split(/[\\/]/).pop() || 'Untitled')
+        setFileName(newFileName)
         setIsModified(false)
+        
+        // 检测文件语言
+        const detectedLanguage = getLanguageInfo(newFileName, result.content)
+        setCurrentLanguage(detectedLanguage)
       } else if (result.error) {
         alert(`Error opening file: ${result.error}`)
       }
@@ -58,6 +77,7 @@ const Notepad: React.FC<NotepadProps> = () => {
     setFileName('Untitled')
     setFilePath('')
     setIsModified(false)
+    setCurrentLanguage(supportedLanguages.find(lang => lang.language === 'text')!)
   }
 
   const handleFileSelect = async (selectedFilePath: string) => {
@@ -69,10 +89,15 @@ const Notepad: React.FC<NotepadProps> = () => {
 
       const result = await window.api.openFile(selectedFilePath)
       if (result.success && result.content !== undefined) {
+        const newFileName = result.filePath?.split(/[\\/]/).pop() || 'Untitled'
         setContent(result.content)
         setFilePath(result.filePath || '')
-        setFileName(result.filePath?.split(/[\\/]/).pop() || 'Untitled')
+        setFileName(newFileName)
         setIsModified(false)
+        
+        // 检测文件语言
+        const detectedLanguage = getLanguageInfo(newFileName, result.content)
+        setCurrentLanguage(detectedLanguage)
       } else if (result.error) {
         alert(`Error opening file: ${result.error}`)
       }
@@ -86,28 +111,42 @@ const Notepad: React.FC<NotepadProps> = () => {
     setSidebarVisible(!sidebarVisible)
   }
 
+  const handleLanguageChange = (language: string) => {
+    const langInfo = supportedLanguages.find(lang => lang.language === language)
+    if (langInfo) {
+      setCurrentLanguage(langInfo)
+    }
+  }
+
+  const toggleTheme = () => {
+    setEditorTheme(editorTheme === 'light' ? 'dark' : 'light')
+  }
+
   // Listen for menu events
   useEffect(() => {
     const handleMenuNew = () => handleNew()
     const handleMenuOpen = () => handleOpen()
     const handleMenuSave = () => handleSave()
     const handleMenuToggleSidebar = () => toggleSidebar()
+    const handleMenuToggleTheme = () => toggleTheme()
 
     window.electron.ipcRenderer.on('menu-new', handleMenuNew)
     window.electron.ipcRenderer.on('menu-open', handleMenuOpen)
     window.electron.ipcRenderer.on('menu-save', handleMenuSave)
     window.electron.ipcRenderer.on('menu-toggle-sidebar', handleMenuToggleSidebar)
+    window.electron.ipcRenderer.on('menu-toggle-theme', handleMenuToggleTheme)
 
     return () => {
       window.electron.ipcRenderer.removeAllListeners('menu-new')
       window.electron.ipcRenderer.removeAllListeners('menu-open')
       window.electron.ipcRenderer.removeAllListeners('menu-save')
       window.electron.ipcRenderer.removeAllListeners('menu-toggle-sidebar')
+      window.electron.ipcRenderer.removeAllListeners('menu-toggle-theme')
     }
   }, [content, filePath, isModified, sidebarVisible])
 
   return (
-    <div className="notepad-container">
+    <div className={`notepad-container ${editorTheme === 'dark' ? 'dark-theme' : ''}`}>
       <div className="notepad-header">
         <div className="notepad-actions">
           <button onClick={toggleSidebar} className="btn btn-icon" title="Toggle Sidebar">
@@ -122,6 +161,9 @@ const Notepad: React.FC<NotepadProps> = () => {
           <button onClick={handleSave} className="btn btn-primary">
             Save
           </button>
+          <button onClick={toggleTheme} className="btn btn-icon" title="Toggle Theme">
+            {editorTheme === 'light' ? '🌙' : '☀️'}
+          </button>
         </div>
         
         <div className="notepad-title">
@@ -129,6 +171,18 @@ const Notepad: React.FC<NotepadProps> = () => {
         </div>
         
         <div className="notepad-file-info">
+          <select 
+            value={currentLanguage.language} 
+            onChange={(e) => handleLanguageChange(e.target.value)}
+            className="language-selector"
+            title="Select Language"
+          >
+            {supportedLanguages.map(lang => (
+              <option key={lang.language} value={lang.language}>
+                {lang.displayName}
+              </option>
+            ))}
+          </select>
           <span className="file-name">{fileName}{isModified ? ' *' : ''}</span>
         </div>
       </div>
@@ -140,12 +194,12 @@ const Notepad: React.FC<NotepadProps> = () => {
         />
         
         <div className="notepad-editor">
-          <textarea
+          <CodeEditor
             value={content}
             onChange={handleContentChange}
-            placeholder="Start typing your notes here..."
-            className="notepad-textarea"
-            spellCheck={false}
+            language={currentLanguage.language}
+            theme={editorTheme}
+            placeholder="Start typing your code here..."
           />
         </div>
       </div>

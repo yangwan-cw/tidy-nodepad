@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+  <book id="1" category="fiction">
+    <title lang="en">Great Gatsby</title>
+    <author>F. Scott Fitzgerald</author>
+    <year>1925</year>
+    <price currency="USD">10.99</price>
+    <description>
+      <![CDATA[
+        A classic American novel set in the Jazz Age.
+        The story follows Jay Gatsby's pursuit of the American Dream.
+      ]]>
+    </description>
+  </book>
+  
+  <book id="2" category="science">
+    <title lang="en">A Brief History of Time</title>
+    <author>Stephen Hawking</author>
+    <year>1988</year>
+    <price currency="USD">15.99</price>
+    <topics>
+      <topic>Physics</topic>
+      <topic>Cosmology</topic>
+      <topic>Black Holes</topic>
+    </topics>
+  </book>
+  
+  <!-- 更多书籍可以在这里添加 -->
+</bookstore>
