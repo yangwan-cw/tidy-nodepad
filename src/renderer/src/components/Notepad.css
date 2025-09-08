@@ -27,6 +27,22 @@
   -webkit-app-region: no-drag;
 }
 
+.btn-icon {
+  padding: 6px 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #495057;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: auto;
+}
+
+.btn-icon:hover {
+  background: #e9ecef;
+}
+
 .notepad-title {
   justify-self: center;
   font-size: 16px;
@@ -88,10 +104,18 @@
   border-color: #545b62;
 }
 
+.notepad-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 .notepad-editor {
   flex: 1;
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .notepad-textarea {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Sidebar from './Sidebar'
 import './Notepad.css'
 
 interface NotepadProps {}
@@ -8,6 +9,7 @@ const Notepad: React.FC<NotepadProps> = () => {
   const [fileName, setFileName] = useState<string>('Untitled')
   const [filePath, setFilePath] = useState<string>('')
   const [isModified, setIsModified] = useState<boolean>(false)
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true)
 
   const handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value)
@@ -58,27 +60,59 @@ const Notepad: React.FC<NotepadProps> = () => {
     setIsModified(false)
   }
 
+  const handleFileSelect = async (selectedFilePath: string) => {
+    try {
+      if (isModified) {
+        const shouldContinue = confirm('You have unsaved changes. Continue without saving?')
+        if (!shouldContinue) return
+      }
+
+      const result = await window.api.openFile(selectedFilePath)
+      if (result.success && result.content !== undefined) {
+        setContent(result.content)
+        setFilePath(result.filePath || '')
+        setFileName(result.filePath?.split(/[\\/]/).pop() || 'Untitled')
+        setIsModified(false)
+      } else if (result.error) {
+        alert(`Error opening file: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Error opening selected file:', error)
+      alert('Error opening file')
+    }
+  }
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible)
+  }
+
   // Listen for menu events
   useEffect(() => {
     const handleMenuNew = () => handleNew()
     const handleMenuOpen = () => handleOpen()
     const handleMenuSave = () => handleSave()
+    const handleMenuToggleSidebar = () => toggleSidebar()
 
     window.electron.ipcRenderer.on('menu-new', handleMenuNew)
     window.electron.ipcRenderer.on('menu-open', handleMenuOpen)
     window.electron.ipcRenderer.on('menu-save', handleMenuSave)
+    window.electron.ipcRenderer.on('menu-toggle-sidebar', handleMenuToggleSidebar)
 
     return () => {
       window.electron.ipcRenderer.removeAllListeners('menu-new')
       window.electron.ipcRenderer.removeAllListeners('menu-open')
       window.electron.ipcRenderer.removeAllListeners('menu-save')
+      window.electron.ipcRenderer.removeAllListeners('menu-toggle-sidebar')
     }
-  }, [content, filePath, isModified])
+  }, [content, filePath, isModified, sidebarVisible])
 
   return (
     <div className="notepad-container">
       <div className="notepad-header">
         <div className="notepad-actions">
+          <button onClick={toggleSidebar} className="btn btn-icon" title="Toggle Sidebar">
+            {sidebarVisible ? '📂' : '📁'}
+          </button>
           <button onClick={handleNew} className="btn btn-secondary">
             New
           </button>
@@ -99,14 +133,21 @@ const Notepad: React.FC<NotepadProps> = () => {
         </div>
       </div>
       
-      <div className="notepad-editor">
-        <textarea
-          value={content}
-          onChange={handleContentChange}
-          placeholder="Start typing your notes here..."
-          className="notepad-textarea"
-          spellCheck={false}
+      <div className="notepad-main">
+        <Sidebar 
+          isVisible={sidebarVisible} 
+          onFileSelect={handleFileSelect}
         />
+        
+        <div className="notepad-editor">
+          <textarea
+            value={content}
+            onChange={handleContentChange}
+            placeholder="Start typing your notes here..."
+            className="notepad-textarea"
+            spellCheck={false}
+          />
+        </div>
       </div>
       
       <div className="notepad-status">

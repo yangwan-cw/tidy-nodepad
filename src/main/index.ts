@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { join } from 'path'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
 function createWindow(): void {
@@ -67,6 +67,12 @@ function createWindow(): void {
     {
       label: 'View',
       submenu: [
+        {
+          label: 'Toggle Sidebar',
+          accelerator: 'CmdOrCtrl+B',
+          click: () => mainWindow.webContents.send('menu-toggle-sidebar')
+        },
+        { type: 'separator' },
         { role: 'reload' },
         { role: 'forceReload' },
         { role: 'toggleDevTools' },
@@ -140,21 +146,69 @@ app.whenReady().then(() => {
     }
   })
 
-  ipcMain.handle('open-file', async () => {
+  ipcMain.handle('open-file', async (_, filePath?: string) => {
+    try {
+      let targetPath = filePath
+      
+      if (!targetPath) {
+        const result = await dialog.showOpenDialog({
+          filters: [
+            { name: 'Text Files', extensions: ['txt'] },
+            { name: 'All Files', extensions: ['*'] }
+          ],
+          properties: ['openFile']
+        })
+        
+        if (result.canceled) return { success: false, canceled: true }
+        targetPath = result.filePaths[0]
+      }
+      
+      const content = readFileSync(targetPath, 'utf8')
+      return { success: true, content, filePath: targetPath }
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  // Directory operations
+  ipcMain.handle('select-directory', async () => {
     try {
       const result = await dialog.showOpenDialog({
-        filters: [
-          { name: 'Text Files', extensions: ['txt'] },
-          { name: 'All Files', extensions: ['*'] }
-        ],
-        properties: ['openFile']
+        properties: ['openDirectory']
       })
       
       if (result.canceled) return { success: false, canceled: true }
       
-      const filePath = result.filePaths[0]
-      const content = readFileSync(filePath, 'utf8')
-      return { success: true, content, filePath }
+      const dirPath = result.filePaths[0]
+      return { success: true, path: dirPath }
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
+    }
+  })
+
+  ipcMain.handle('read-directory', async (_, dirPath?: string) => {
+    try {
+      if (!dirPath) {
+        return { success: false, error: 'No directory path provided' }
+      }
+
+      const items = readdirSync(dirPath)
+      const files = items.map(item => {
+        const fullPath = join(dirPath, item)
+        const stats = statSync(fullPath)
+        return {
+          name: item,
+          path: fullPath,
+          isDirectory: stats.isDirectory()
+        }
+      }).sort((a, b) => {
+        // 目录排在前面，然后按名称排序
+        if (a.isDirectory && !b.isDirectory) return -1
+        if (!a.isDirectory && b.isDirectory) return 1
+        return a.name.localeCompare(b.name)
+      })
+
+      return { success: true, files, path: dirPath }
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }
