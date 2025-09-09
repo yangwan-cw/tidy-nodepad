@@ -242,6 +242,16 @@
 .notepad-status span {
   margin-right: 16px;
 }
+.status-version{
+  font-weight: bold;
+  color: #343a40;
+}
+
+
+
+.status-version span{
+  margin-left: 10px;
+}
 
 /* 滚动条样式 */
 .notepad-textarea::-webkit-scrollbar {
